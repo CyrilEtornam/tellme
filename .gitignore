@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+.pytest_cache/
+.venv/
+venv/
+
+# tellme local artifacts (never committed)
+*.onnx
+*.onnx.json
+google_token.json
+google_client_secret.json

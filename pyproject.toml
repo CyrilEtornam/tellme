@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tellme"
+version = "0.1.0"
+description = "A premium talking clock for Ubuntu — speaks the time and your calendar events with a natural neural voice."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "tellme contributors" }]
+keywords = ["talking-clock", "tts", "piper", "ubuntu", "calendar", "accessibility"]
+
+# Core runtime deps. PyGObject is listed here but on Ubuntu it is normally
+# provided by the system package `python3-gi` (see packaging/install.sh); the
+# app degrades gracefully to CLI-only mode when the GTK/AppIndicator typelibs
+# are absent.
+dependencies = [
+    "piper-tts>=1.2.0",
+]
+
+[project.optional-dependencies]
+# Direct Google Calendar API provider. Not needed when Google events are read
+# through GNOME Online Accounts + Evolution Data Server (the default path).
+google = [
+    "google-api-python-client>=2.100",
+    "google-auth-oauthlib>=1.2",
+    "google-auth-httplib2>=0.2",
+]
+gui = ["PyGObject>=3.42"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+tellme = "tellme.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tellme*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
