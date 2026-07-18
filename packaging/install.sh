@@ -13,10 +13,17 @@ sudo apt-get install -y \
     gir1.2-ayatanaappindicator3-0.1 \
     gir1.2-edataserver-1.2 \
     gir1.2-ecal-2.0 \
-    pulseaudio-utils
+    pulseaudio-utils \
+    pipx
 
-echo "==> Installing the tellme Python package (user site)"
-pip install --user "${REPO_ROOT}"
+echo "==> Installing the tellme Python package (isolated pipx venv)"
+# Ubuntu marks the system Python "externally managed" (PEP 668), so a plain
+# `pip install --user` refuses to run. pipx gives us an isolated venv while
+# --system-site-packages keeps the apt-installed GTK/AppIndicator bindings
+# above importable; it drops the entry point at ~/.local/bin/tellme, which
+# is what tellme.service's ExecStart expects.
+pipx ensurepath
+pipx install --system-site-packages --force "${REPO_ROOT}"
 
 echo "==> Downloading voice model: ${VOICE}"
 "${REPO_ROOT}/scripts/get-voice.sh" "${VOICE}"
