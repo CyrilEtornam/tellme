@@ -174,7 +174,18 @@ class Speaker:
         voice = self._load_voice()
         buf = io.BytesIO()
 
-        # Strategy A: older piper-tts writes directly into a wave.Wave_write.
+        # Strategy A1: piper-tts >=1.3 exposes synthesize_wav(), which sets the
+        # WAV header fields itself and writes frames correctly. Prefer it: the
+        # newer synthesize() is a generator, so calling it as if it still took
+        # a wav_file (Strategy A2 below) silently no-ops instead of raising.
+        if hasattr(voice, "synthesize_wav"):
+            with wave.open(buf, "wb") as wav_file:
+                voice.synthesize_wav(text, wav_file)
+            data = buf.getvalue()
+            if data:
+                return data
+
+        # Strategy A2: older piper-tts writes directly into a wave.Wave_write.
         try:
             with wave.open(buf, "wb") as wav_file:
                 voice.synthesize(text, wav_file)
