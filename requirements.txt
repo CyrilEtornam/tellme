@@ -1,0 +1,13 @@
+# Core runtime dependencies for tellme.
+# On Ubuntu, install the system GObject bindings via apt (see packaging/install.sh):
+#   sudo apt install python3-gi gir1.2-ayatanaappindicator3-0.1 \
+#       gir1.2-edataserver-1.2 gir1.2-ecal-2.0 pulseaudio-utils
+#
+# The pip packages below cover the offline neural TTS engine.
+piper-tts>=1.2.0
+
+# Optional: only needed for the direct Google Calendar API provider.
+# Prefer the GNOME Online Accounts + Evolution Data Server path instead.
+# google-api-python-client>=2.100
+# google-auth-oauthlib>=1.2
+# google-auth-httplib2>=0.2
