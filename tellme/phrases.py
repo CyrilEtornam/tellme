@@ -1,8 +1,8 @@
 """Natural-language phrasing for time and calendar events.
 
 Kept dependency-free: numbers are spelled out with a small lookup table rather
-than pulling in ``num2words``. The goal is macOS-style phrasing, e.g.
-``"It's quarter past four in the afternoon"``.
+than pulling in ``num2words``. Time is read out like a digital clock, e.g.
+``"It's ten oh eight PM"``.
 """
 
 from __future__ import annotations
@@ -31,26 +31,15 @@ def spell_number(n: int) -> str:
     return f"{_TENS[tens]} {_ONES[ones]}"
 
 
-def _daypart(hour24: int) -> str:
-    """Return the spoken time-of-day qualifier for a 24-hour hour value."""
-    if 5 <= hour24 < 12:
-        return "in the morning"
-    if 12 <= hour24 < 17:
-        return "in the afternoon"
-    if 17 <= hour24 < 21:
-        return "in the evening"
-    return "at night"
-
-
 def time_phrase(now: datetime | None = None) -> str:
     """Return a natural spoken phrase for the current wall-clock time.
 
     Examples:
-        3:00  -> "It's three o'clock in the afternoon"
-        4:15  -> "It's quarter past four in the afternoon"
-        2:30  -> "It's half past two in the afternoon"
-        6:45  -> "It's quarter to seven in the evening"
-        9:07  -> "It's seven minutes past nine in the morning"
+        3:00  -> "It's three PM"
+        4:15  -> "It's four fifteen PM"
+        2:30  -> "It's two thirty PM"
+        6:45  -> "It's six forty five PM"
+        9:07  -> "It's nine oh seven AM"
         0:00  -> "It's midnight"
         12:00 -> "It's noon"
     """
@@ -65,21 +54,13 @@ def time_phrase(now: datetime | None = None) -> str:
 
     hour12 = hour24 % 12 or 12
     hour_word = _ONES[hour12]
-    daypart = _daypart(hour24)
+    am_pm = "AM" if hour24 < 12 else "PM"
 
     if minute == 0:
-        return f"It's {hour_word} o'clock {daypart}"
-    if minute == 15:
-        return f"It's quarter past {hour_word} {daypart}"
-    if minute == 30:
-        return f"It's half past {hour_word} {daypart}"
-    if minute == 45:
-        next_hour24 = (hour24 + 1) % 24
-        next_hour12 = next_hour24 % 12 or 12
-        return f"It's quarter to {_ONES[next_hour12]} {_daypart(next_hour24)}"
-
-    unit = "minute" if minute == 1 else "minutes"
-    return f"It's {spell_number(minute)} {unit} past {hour_word} {daypart}"
+        return f"It's {hour_word} {am_pm}"
+    if minute < 10:
+        return f"It's {hour_word} oh {_ONES[minute]} {am_pm}"
+    return f"It's {hour_word} {spell_number(minute)} {am_pm}"
 
 
 _EMOJI_RE = re.compile(
