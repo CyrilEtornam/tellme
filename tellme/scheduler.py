@@ -10,7 +10,7 @@ import json
 import logging
 import math
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from .calendars.base import Event
@@ -53,7 +53,10 @@ class AnnouncementTracker:
 
     def __init__(self, path: Path = ANNOUNCED_PATH) -> None:
         self.path = path
-        self._day: str = date.today().isoformat()
+        # No day is current until a real ``now`` (via due()/_load()) sets one;
+        # this guarantees the first due() call always establishes it correctly
+        # rather than relying on the wall clock at construction time.
+        self._day: str = ""
         self._seen: set[str] = set()
         self._load()
 
@@ -65,8 +68,8 @@ class AnnouncementTracker:
             data = json.loads(self.path.read_text())
         except (FileNotFoundError, json.JSONDecodeError, OSError):
             return
-        if data.get("day") == self._day:
-            self._seen = set(data.get("seen", []))
+        self._day = data.get("day", self._day)
+        self._seen = set(data.get("seen", []))
 
     def _save(self) -> None:
         try:

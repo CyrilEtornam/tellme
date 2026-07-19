@@ -12,6 +12,7 @@ Design notes:
 from __future__ import annotations
 
 import logging
+import math
 import threading
 from datetime import datetime, timedelta
 
@@ -86,7 +87,7 @@ class TellmeApp:
             self._time_source_id = None
         if not self.config.time.enabled:
             return
-        delay = int(round(seconds_to_next_interval(datetime.now(), self.config.time.interval_minutes)))
+        delay = math.ceil(seconds_to_next_interval(datetime.now(), self.config.time.interval_minutes))
         self._time_source_id = self._GLib.timeout_add_seconds(max(1, delay), self._on_time_tick)
 
     def _on_time_tick(self) -> bool:
